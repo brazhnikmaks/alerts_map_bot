@@ -8,7 +8,7 @@ const handler: Handler = async () => {
 				axios(
 					"https://alerts-map-bot-a6c83d.netlify.app/.netlify/functions/send",
 				),
-			8000,
+			9500,
 		),
 	);
 
