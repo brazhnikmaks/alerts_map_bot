@@ -1,11 +1,19 @@
 {
-	"compilerOptions": {
-		"target": "ES2015",
-		"module": "commonjs",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"lib": ["dom"]
-	}
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 14",
+  "compilerOptions": {
+    "lib": ["es2020", "dom"],
+    "module": "commonjs",
+    "target": "es2015",
+		"outDir": "./build",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+		"typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ]
+  }
 }

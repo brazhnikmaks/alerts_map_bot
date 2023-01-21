@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "nodemon index.ts",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "npx ts-node index.ts"
+		"start": "npx ts-node index.ts",
+		"build": "tsc --project ./"
 	},
 	"author": "Maksym Brazhnyk",
 	"license": "ISC",
@@ -17,9 +18,11 @@
 		"node-telegram-bot-api": "^0.61.0",
 		"pixelmatch": "^5.3.0",
 		"pngjs": "^6.0.0",
-		"puppeteer": "^19.5.2"
+		"puppeteer": "^19.5.2",
+		"puppeteer-core": "^19.5.2"
 	},
 	"devDependencies": {
+		"@tsconfig/node14": "^1.0.3",
 		"@types/node-telegram-bot-api": "^0.57.6",
 		"@types/pixelmatch": "^5.2.4",
 		"@types/pngjs": "^6.0.1",
