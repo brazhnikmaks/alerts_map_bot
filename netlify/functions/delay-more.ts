@@ -6,7 +6,7 @@ const handler: Handler = async () => {
 		setTimeout(
 			() =>
 				axios(
-					"https://alerts-map-bot-a6c83d.netlify.app/.netlify/functions/delay-more",
+					"https://alerts-map-bot-a6c83d.netlify.app/.netlify/functions/send",
 				),
 			9500,
 		),
