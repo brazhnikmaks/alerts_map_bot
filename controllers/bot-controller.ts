@@ -1,59 +1,68 @@
 import fs from "fs";
-import { PNG } from "pngjs";
-import { Message, SendMessageOptions } from "node-telegram-bot-api";
+import {
+	Message,
+	SendMessageOptions,
+	KeyboardButton,
+} from "node-telegram-bot-api";
 import bot from "../servises/telefram-service";
+import db from "../servises/mongo-service";
 import PuppeteerService from "../servises/puppeteer-service";
 import PixelmatchService from "../servises/pixelmatch-service";
+import ChatDto from "../dtos/chat-dto";
 
 class BotController {
-	chats: number[];
 	constructor() {
 		this.setCommands();
-		this.chats = [436262107];
 	}
 
 	async setCommands() {
 		bot.setMyCommands([
-			{ command: "/alerts", description: "Показати мапу" },
-			{ command: "/help", description: "Допомога" },
+			{ command: "/legend", description: "ℹ️ Легенда" },
+			{ command: "/subscribe", description: "🔔 Підписатися" },
+			{ command: "/unsubscribe", description: "🔕 Відписатися" },
+			{ command: "/mute", description: "🔇 Без звуку" },
+			{ command: "/unmute", description: "🔈 Зі звуком" },
+			{ command: "/help", description: "📄 Допомога" },
 		]);
 	}
 
-	// setReplyKeyboard(): SendMessageOptions {
-	// 	const keyboard: KeyboardButton[][] = [];
+	setReplyKeyboard(chat: ChatDto): SendMessageOptions {
+		const { subscribed, silent } = chat;
 
-	// 	keyboard.push(
-	// 		[
-	// 			{
-	// 				text: "Text",
-	// 			},
+		const keyboard: KeyboardButton[][] = [];
 
-	// 	);
+		keyboard.push(
+			[
+				{
+					text: "ℹ️ Легенда",
+				},
+			],
+			[
+				{
+					text: subscribed ? "🔕 Відписатися" : "🔔 Підписатися",
+				},
+				{
+					text: silent ? "🔈 Зі звуком" : "🔇 Без звуку",
+				},
+			],
+		);
 
-	// 	return {
-	// 		reply_markup: {
-	// 			resize_keyboard: true,
-	// 			keyboard,
-	// 		},
-	// 	};
-	// }
+		return {
+			reply_markup: {
+				resize_keyboard: true,
+				keyboard,
+			},
+		};
+	}
 
 	async sendError(chatId: number) {
 		await bot.sendMessage(chatId, `Помилочка  ¯\\_(ツ)_/¯`);
 	}
 
-	async sendWait(chatId: number) {
-		await bot.sendMessage(chatId, `Чекайте, це займе 3-7 секунд...`);
-	}
-
 	async onHelp(chatId: number) {
 		return await bot.sendMessage(
 			chatId,
-			`Heeeeeeeeeeelp`,
-			// {
-			// 	...(chat.id ? this.setReplyKeyboard() : {}),
-			// 	parse_mode: "Markdown",
-			// },
+			`Ви отримаєте нову мапу, коли на ній будуть зміни.\n\nОсь що Ви можете поки зробити:\n\n/legend - ℹ️ Подивитися легенду мапы.\n\n/unsubscribe - 🔕 *відписатися* від оновлень мапи.\n/subscribe - 🔔 *відновити* підписку.\n\n/mute - 🔇 налаштувати оповіщення *без звуку*.\n/unmute - 🔈 та *зі звуком*.`,
 		);
 	}
 
@@ -71,48 +80,151 @@ class BotController {
 	async onStart(msg: Message) {
 		const {
 			chat: { id: chatId },
+			from,
 		} = msg;
 
 		this.setCommands();
 
-		await bot.sendMessage(
-			chatId,
-			`Вітаю, Ви підписались на оновленя мапи тривог України (https://alerts.in.ua/).\nЦей бот надсилає мапу, коли на ній є будь яка зміна.\nОсь як виглядає мапа зараз:`,
-			{
-				disable_web_page_preview: true,
-			},
-		);
+		try {
+			const chat = await db.addChat(chatId, from);
 
-		return await bot.sendPhoto(
-			chatId,
-			fs.readFileSync("base.png"),
-			{},
-			{
-				filename: "mapScreenshot",
-				contentType: "image/png",
-			},
-		);
-	}
+			await bot.sendMessage(
+				chatId,
+				`Вітаю, Ви підписались на оновленя мапи тривог України (https://alerts.in.ua/).\nЦей бот моніторить зміни на мапі кожні 30 секунд і надсилає її, якщо щось змінилось.\nОсь як виглядає мапа зараз:`,
+				{
+					...this.setReplyKeyboard(chat),
+					disable_web_page_preview: true,
+				},
+			);
 
-	async onShowMap(msg: Message) {
-		const {
-			chat: { id: chatId },
-		} = msg;
-
-		this.sendWait(chatId);
-
-		const screenShot = await this.getAlertsScreenshot();
-
-		if (screenShot) {
 			await bot.sendPhoto(
 				chatId,
-				screenShot,
+				fs.readFileSync("base.png"),
 				{},
 				{
 					filename: "mapScreenshot",
 					contentType: "image/png",
 				},
 			);
+
+			return;
+		} catch (e) {
+			try {
+				await this.setCommands();
+				let chat = await db.getChat(chatId);
+				const { subscribed } = chat;
+				if (subscribed) {
+					await bot.sendMessage(
+						chatId,
+						`Вітаю, ось як виглядає мапа зараз:`,
+						this.setReplyKeyboard(chat),
+					);
+				} else {
+					chat = await db.chatSubscribe(chatId, true);
+					await bot.sendMessage(
+						chatId,
+						`Ви знову підписані на тривожну мапу. А ось і вона зараз:`,
+						this.setReplyKeyboard(chat),
+					);
+				}
+
+				await bot.sendPhoto(
+					chatId,
+					fs.readFileSync("base.png"),
+					{},
+					{
+						filename: "mapScreenshot",
+						contentType: "image/png",
+					},
+				);
+			} catch (e) {
+				await this.sendError(chatId);
+			}
+		}
+	}
+
+	async onLegend(msg: Message) {
+		const {
+			chat: { id: chatId },
+		} = msg;
+
+		const legend = fs.readFileSync("legend.png");
+
+		return await bot.sendPhoto(
+			chatId,
+			legend,
+			{},
+			{
+				filename: "mapLegend",
+				contentType: "image/png",
+			},
+		);
+	}
+
+	async onSubscribe(msg: Message, subscribe: boolean) {
+		const {
+			chat: { id: chatId },
+		} = msg;
+
+		try {
+			let chat = await db.getChat(chatId);
+
+			if (chat.subscribed === subscribe) {
+				return await bot.sendMessage(
+					chatId,
+					subscribe
+						? "🔔 Ви вже підписані на щоденні передбачення."
+						: "🔕 Ви вже відписані від щоденних передбачень",
+					this.setReplyKeyboard(chat),
+				);
+			}
+
+			chat = await db.chatSubscribe(chatId, subscribe);
+
+			await bot.sendMessage(
+				chatId,
+				subscribe
+					? "🔔 Ви підписалися на щоденні передбачення."
+					: `🔕 Ви відписались від щоденних передбачень. Ви можете отримати передбачення в "Меню", але один раз на день.`,
+				this.setReplyKeyboard(chat),
+			);
+			return;
+		} catch (e) {
+			await this.sendError(chatId);
+		}
+	}
+
+	async onMute(msg: Message, mute: boolean) {
+		const {
+			chat: { id: chatId },
+		} = msg;
+
+		try {
+			let chat = await db.getChat(chatId);
+
+			if (chat.silent === mute) {
+				return await bot.sendMessage(
+					chatId,
+					mute
+						? "🔇 Ви вже отримуєте пердбачення без звуку"
+						: "🔈 Ви вже отримуєте пердбачення зі звуком",
+					this.setReplyKeyboard(chat),
+				);
+			}
+
+			chat = await db.chatSilent(chatId, mute);
+
+			await bot.sendMessage(
+				chatId,
+				mute
+					? "🔇 Ваші пердбачення будуть надходити без звуку."
+					: "🔈 Ваші пердбачення будуть надходити зі звуком.",
+				this.setReplyKeyboard(chat),
+			);
+
+			return;
+		} catch (e) {
+			await this.sendError(chatId);
 		}
 	}
 
@@ -122,56 +234,95 @@ class BotController {
 			chat: { id: chatId },
 		} = msg;
 
-		switch (text) {
-			//start bot
-			case "/start":
-				await this.onStart(msg);
-				return;
-			//show map
-			case "/alerts":
-				await this.onShowMap(msg);
-				return;
-			default:
-				//help
-				await this.onHelp(chatId);
-				return;
+		try {
+			await db.connect();
+			switch (text) {
+				//start bot
+				case "/start":
+					await this.onStart(msg);
+					return;
+				//show legend
+				case "/legend":
+				case "ℹ️ Легенда":
+					await this.onLegend(msg);
+					return;
+				//subscribe
+				case "/subscribe":
+				case "🔔 Підписатися":
+					await this.onSubscribe(msg, true);
+					return;
+				//unsubscribe
+				case "/unsubscribe":
+				case "🔕 Відписатися":
+					await this.onSubscribe(msg, false);
+					return;
+				//mute
+				case "/mute":
+				case "🔇 Без звуку":
+					await this.onMute(msg, true);
+					return;
+				//unmute
+				case "/unmute":
+				case "🔈 Зі звуком":
+					await this.onMute(msg, false);
+					return;
+				default:
+					//help
+					await this.onHelp(chatId);
+					return;
+			}
+		} catch (e) {
+			this.sendError(chatId);
 		}
 	}
 
-	async processDiff() {
-		const date1 = Date.now();
-		let diffPixels = 0;
+	async startMonitoring() {
+		let base = fs.readFileSync("base.png");
 
-		const newScreenshot = await this.getAlertsScreenshot();
+		setInterval(async () => {
+			let diffPixels = 0;
+			const newScreenshot = (await this.getAlertsScreenshot()) as Buffer;
 
-		if (newScreenshot) {
-			diffPixels = await PixelmatchService.diffImages(
-				fs.readFileSync("base.png"),
-				newScreenshot as Buffer,
-			);
+			if (newScreenshot) {
+				diffPixels = await PixelmatchService.diffImages(base, newScreenshot);
 
-			console.log(`${diffPixels} pixels`);
+				console.log(`${diffPixels} pixels`);
 
-			if (diffPixels > 200) {
-				fs.writeFileSync("base.png", newScreenshot);
+				if (diffPixels > 400) {
+					base = newScreenshot;
+					fs.writeFileSync("base.png", newScreenshot);
 
-				await Promise.all(
-					this.chats.map(async (chat) => {
-						return await bot.sendPhoto(
-							chat,
-							newScreenshot as Buffer,
-							{},
-							{
-								filename: "mapScreenshot",
-								contentType: "image/png",
-							},
-						);
-					}),
-				);
+					try {
+						await db.connect();
+						try {
+							const chats = await db.getChats({
+								subscribed: true,
+							});
+
+							if (!chats.length) {
+								return;
+							}
+
+							await Promise.all(
+								chats.map(async ({ id, silent }) => {
+									return await bot.sendPhoto(
+										id,
+										newScreenshot,
+										{
+											disable_notification: silent,
+										},
+										{
+											filename: "mapScreenshot",
+											contentType: "image/png",
+										},
+									);
+								}),
+							);
+						} catch (e) {}
+					} catch (e) {}
+				}
 			}
-		}
-		const date2 = Date.now();
-		console.log(`${(date2 - date1) / 1000}s`);
+		}, 30 * 1000);
 	}
 }
 

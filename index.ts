@@ -3,6 +3,4 @@ import BotController from "./controllers/bot-controller";
 
 bot.on("message", BotController.onAction.bind(BotController));
 
-setInterval(() => {
-	BotController.processDiff.bind(BotController)();
-}, 30 * 1000);
+BotController.startMonitoring.bind(BotController)();
