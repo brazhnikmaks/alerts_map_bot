@@ -3,4 +3,4 @@ import BotController from "./controllers/bot-controller";
 
 bot.on("message", BotController.onAction.bind(BotController));
 
-BotController.startMonitoring.bind(BotController)();
+BotController.monitor.bind(BotController)();

@@ -276,53 +276,50 @@ class BotController {
 		}
 	}
 
-	async startMonitoring() {
-		let base = fs.readFileSync("base.png");
+	async monitor() {
+		const newScreenshot = (await this.getAlertsScreenshot()) as Buffer;
 
-		setInterval(async () => {
-			let diffPixels = 0;
-			const newScreenshot = (await this.getAlertsScreenshot()) as Buffer;
+		if (newScreenshot) {
+			const diffPixels = await PixelmatchService.diffImages(
+				fs.readFileSync("base.png"),
+				newScreenshot,
+			);
 
-			if (newScreenshot) {
-				diffPixels = await PixelmatchService.diffImages(base, newScreenshot);
+			console.log(`${diffPixels} pixels`);
 
-				console.log(`${diffPixels} pixels`);
+			if (diffPixels > 400) {
+				fs.writeFileSync("base.png", newScreenshot);
 
-				if (diffPixels > 400) {
-					base = newScreenshot;
-					fs.writeFileSync("base.png", newScreenshot);
-
+				try {
+					await db.connect();
 					try {
-						await db.connect();
-						try {
-							const chats = await db.getChats({
-								subscribed: true,
-							});
+						const chats = await db.getChats({
+							subscribed: true,
+						});
 
-							if (!chats.length) {
-								return;
-							}
+						if (!chats.length) {
+							return;
+						}
 
-							await Promise.all(
-								chats.map(async ({ id, silent }) => {
-									return await bot.sendPhoto(
-										id,
-										newScreenshot,
-										{
-											disable_notification: silent,
-										},
-										{
-											filename: "mapScreenshot",
-											contentType: "image/png",
-										},
-									);
-								}),
-							);
-						} catch (e) {}
+						await Promise.all(
+							chats.map(async ({ id, silent }) => {
+								return await bot.sendPhoto(
+									id,
+									newScreenshot,
+									{
+										disable_notification: silent,
+									},
+									{
+										filename: "mapScreenshot",
+										contentType: "image/png",
+									},
+								);
+							}),
+						);
 					} catch (e) {}
-				}
+				} catch (e) {}
 			}
-		}, 30 * 1000);
+		}
 	}
 }
 
