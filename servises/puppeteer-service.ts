@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
 config();
@@ -13,7 +13,7 @@ class PuppeteerService {
 		const browser = await puppeteer.launch({
 			args: chromium.args,
 			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
 			headless: true,
 		});
 		try {
