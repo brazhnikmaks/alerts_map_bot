@@ -10,6 +10,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@netlify/functions": "^1.4.0",
+		"axios": "^1.2.3",
 		"chrome-aws-lambda": "^2.1.1",
 		"dotenv": "^16.0.3",
 		"mongodb": "^4.13.0",

@@ -1,4 +1,5 @@
 import { Handler } from "@netlify/functions";
+import axios from "axios";
 import bot from "../../servises/telefram-service";
 
 const handler: Handler = async () => {
@@ -6,7 +7,7 @@ const handler: Handler = async () => {
 		new Promise(() =>
 			setTimeout(
 				() =>
-					fetch(
+					axios(
 						"https://alerts-map-bot-a6c83d.netlify.app/.netlify/functions/send",
 					),
 				8000,
