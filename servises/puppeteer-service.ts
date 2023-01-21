@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import chromium from "chrome-aws-lambda";
+const chromium = require("chrome-aws-lambda");
 
 config();
 
