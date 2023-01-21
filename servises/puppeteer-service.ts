@@ -1,4 +1,8 @@
-import puppeteer from "puppeteer";
+import { config } from "dotenv";
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
+
+config();
 
 class PuppeteerService {
 	async getSelectorScreenshot(
@@ -6,7 +10,12 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await puppeteer.launch();
+		const browser = await puppeteer.launch({
+			args: chromium.args,
+			executablePath:
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+			headless: true,
+		});
 		try {
 			const page = await browser.newPage();
 			await page.setViewport({ width: 1920, height: 1080 });

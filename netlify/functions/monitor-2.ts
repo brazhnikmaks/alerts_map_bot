@@ -7,6 +7,6 @@ const monitorHandler: Handler = async () => {
 	return { statusCode: 200 };
 };
 
-const handler = schedule("41 * * * *", monitorHandler);
+const handler = schedule("2 * * * *", monitorHandler);
 
 export { handler };
