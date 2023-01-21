@@ -10,14 +10,14 @@
 	"license": "ISC",
 	"dependencies": {
 		"@netlify/functions": "^1.4.0",
+		"chrome-aws-lambda": "^2.0.0",
 		"dotenv": "^16.0.3",
 		"mongodb": "^4.13.0",
 		"mongoose": "^6.8.4",
 		"node-telegram-bot-api": "^0.61.0",
 		"pixelmatch": "^5.3.0",
 		"pngjs": "^6.0.0",
-		"puppeteer-core": "^2.0.0",
-		"chrome-aws-lambda": "^2.0.0"
+		"puppeteer-core": "^2.0.0"
 	},
 	"devDependencies": {
 		"@tsconfig/node14": "^1.0.3",
