@@ -10,11 +10,11 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await chromium.puppeteer.launch({
+		const browser = await puppeteer.launch({
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
 			headless: chromium.headless,
 		});
 
