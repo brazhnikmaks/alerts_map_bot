@@ -12,6 +12,7 @@
 		"@netlify/functions": "^1.4.0",
 		"@sparticuz/chromium": "^109.0.6",
 		"axios": "^1.2.3",
+		"chrome-aws-lambda": "^10.1.0",
 		"dotenv": "^16.0.3",
 		"mongodb": "^4.13.0",
 		"mongoose": "^6.8.4",
