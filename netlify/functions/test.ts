@@ -1,15 +1,22 @@
 import { Handler } from "@netlify/functions";
-import puppeteer from "puppeteer-serverless";
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 
 const handler: Handler = async () => {
-	// @ts-ignore
-	const browser = await puppeteer.launch();
+	const browser = await puppeteer.launch({
+		args: chromium.args,
+		defaultViewport: chromium.defaultViewport,
+		executablePath: await chromium.executablePath(),
+		headless: chromium.headless,
+		ignoreHTTPSErrors: true,
+	});
+
 	const page = await browser.newPage();
-	await page.goto("https://alerts.in.ua/");
+	await page.goto("https://example.com");
 	const pageTitle = await page.title();
-	await browser.close();
 
 	console.log(pageTitle);
+	await browser.close();
 	return { statusCode: 200 };
 };
 

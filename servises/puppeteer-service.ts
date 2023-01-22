@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 const puppeteer = require("puppeteer-core");
-const chromium = require("chrome-aws-lambda");
+const chromium = require("@sparticuz/chromium");
 
 config();
 
@@ -14,8 +14,9 @@ class PuppeteerService {
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
 			headless: chromium.headless,
+			ignoreHTTPSErrors: true,
 		});
 
 		try {
