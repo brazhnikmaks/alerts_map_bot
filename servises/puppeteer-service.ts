@@ -14,7 +14,7 @@ class PuppeteerService {
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
 			headless: chromium.headless,
 		});
 
