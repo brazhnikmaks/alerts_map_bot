@@ -3,6 +3,7 @@ const puppeteer = require("puppeteer-core");
 const chromium = require("chrome-aws-lambda");
 
 export default async (request: VercelRequest, response: VercelResponse) => {
+	console.log(await chromium.executablePath);
 	const browser = await puppeteer.launch({
 		args: chromium.args,
 		defaultViewport: chromium.defaultViewport,
