@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "nodemon index.ts",
-		"build": "tsc --project ./",
+		"build": "npm i && tsc --project ./",
 		"start": "node ./build/index.js"
 	},
 	"author": "Maksym Brazhnyk",
