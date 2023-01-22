@@ -1,5 +1,4 @@
 import { config } from "dotenv";
-const puppeteer = require("puppeteer-core");
 const chromium = require("chrome-aws-lambda");
 
 config();
@@ -10,7 +9,7 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await puppeteer.launch({
+		const browser = await chromium.puppeteer.launch({
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
