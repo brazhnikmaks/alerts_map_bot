@@ -10,7 +10,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@netlify/functions": "^1.4.0",
-		"@sparticuz/chromium": "^106.0.2",
+		"@vercel/node": "^2.8.15",
 		"axios": "^1.2.3",
 		"chrome-aws-lambda": "^10.1.0",
 		"dotenv": "^16.0.3",
@@ -20,14 +20,13 @@
 		"pixelmatch": "^5.3.0",
 		"playwright-core": "^1.29.2",
 		"pngjs": "^6.0.0",
-		"puppeteer-core": "^18.0.5"
+		"puppeteer-core": "^19.5.2"
 	},
 	"devDependencies": {
 		"@types/node-telegram-bot-api": "^0.57.6",
 		"@types/pixelmatch": "^5.2.4",
 		"@types/pngjs": "^6.0.1",
 		"nodemon": "^2.0.20",
-		"puppeteer": "^19.5.2",
 		"ts-node": "^10.9.1",
 		"typescript": "^4.9.4"
 	}

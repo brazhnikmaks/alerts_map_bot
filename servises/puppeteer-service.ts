@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const chromium = require("chrome-aws-lambda");
 
 config();
 
