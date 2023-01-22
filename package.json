@@ -19,7 +19,8 @@
 		"pixelmatch": "^5.3.0",
 		"playwright-core": "^1.29.2",
 		"pngjs": "^6.0.0",
-		"puppeteer-core": "^19.5.2"
+		"puppeteer-core": "^19.5.2",
+		"puppeteer-serverless": "^2.0.0"
 	},
 	"devDependencies": {
 		"@types/node-telegram-bot-api": "^0.57.6",
