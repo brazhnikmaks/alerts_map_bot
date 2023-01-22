@@ -279,6 +279,8 @@ class BotController {
 	async monitor() {
 		const newScreenshot = (await this.getAlertsScreenshot()) as Buffer;
 
+		console.log(`newScreenshot`);
+
 		if (newScreenshot) {
 			const diffPixels = await PixelmatchService.diffImages(
 				fs.readFileSync("base.png"),
