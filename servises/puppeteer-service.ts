@@ -1,6 +1,6 @@
 import { config } from "dotenv";
-const { chromium: playwright } = require("playwright-core");
-const chromium = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 
 config();
 
@@ -10,11 +10,11 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await playwright.launch({
+		const browser = await puppeteer.launch({
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
 			headless: chromium.headless,
 		});
 
