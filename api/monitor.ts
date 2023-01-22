@@ -1,13 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium-min");
 
 export default async (request: VercelRequest, response: VercelResponse) => {
 	console.log(await chromium.executablePath());
 	const browser = await puppeteer.launch({
 		args: chromium.args,
 		defaultViewport: chromium.defaultViewport,
-		executablePath: await chromium.executablePath(),
+		executablePath: await chromium.executablePath("/tmp/chromium"),
 		headless: chromium.headless,
 		ignoreHTTPSErrors: true,
 	});
