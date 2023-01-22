@@ -9,7 +9,6 @@
 	"author": "Maksym Brazhnyk",
 	"license": "ISC",
 	"dependencies": {
-		"@netlify/functions": "^1.4.0",
 		"@sparticuz/chromium": "^109.0.6",
 		"axios": "^1.2.3",
 		"dotenv": "^16.0.3",
