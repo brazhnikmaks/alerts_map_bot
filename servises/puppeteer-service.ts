@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-const puppeteer = require("puppeteer-core");
+const { chromium: playwright } = require("playwright-core");
 const chromium = require("@sparticuz/chromium");
 
 config();
@@ -10,7 +10,7 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await puppeteer.launch({
+		const browser = await playwright.launch({
 			args: chromium.args,
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath:
