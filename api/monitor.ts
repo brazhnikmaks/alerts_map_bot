@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import botController from "../controllers/bot-controller";
 
 export default async (request: VercelRequest, response: VercelResponse) => {
+	console.log("in");
 	await Promise.all([
 		botController.monitor.bind(botController)(),
 		// new Promise(() =>
