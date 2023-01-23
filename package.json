@@ -11,7 +11,6 @@
 	"author": "Maksym Brazhnyk",
 	"license": "ISC",
 	"dependencies": {
-		"@sparticuz/chromium": "^109.0.6",
 		"axios": "^1.2.3",
 		"dotenv": "^16.0.3",
 		"mongodb": "^4.13.0",
@@ -19,7 +18,7 @@
 		"node-telegram-bot-api": "^0.61.0",
 		"pixelmatch": "^5.3.0",
 		"pngjs": "^6.0.0",
-		"puppeteer-core": "^19.5.2"
+		"puppeteer": "^19.5.2"
 	},
 	"devDependencies": {
 		"@types/node-telegram-bot-api": "^0.57.6",

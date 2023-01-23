@@ -1,6 +1,5 @@
 import { config } from "dotenv";
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+import puppeteer from "puppeteer";
 
 config();
 
@@ -10,17 +9,13 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await puppeteer.launch({
-			args: chromium.args,
-			defaultViewport: { width: 1920, height: 1080 },
-			executablePath:
-				process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
-			headless: chromium.headless,
-			ignoreHTTPSErrors: true,
-		});
-
+		const browser = await puppeteer.launch();
 		try {
 			const page = await browser.newPage();
+			page.setViewport({
+				width: 1920,
+				height: 1080,
+			});
 			await page.goto(url);
 			await page.evaluate(evaluate);
 			await page.goto(url, { waitUntil: "networkidle0" });
