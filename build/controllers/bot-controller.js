@@ -82,7 +82,7 @@ class BotController {
             this.setCommands();
             try {
                 const chat = yield mongo_service_1.default.addChat(chatId, from);
-                yield telefram_service_1.default.sendMessage(chatId, `Вітаю, Ви підписались на оновленя мапи тривог України (https://alerts.in.ua/).\nЦей бот моніторить зміни на мапі кожні 30 секунд і надсилає її, якщо щось змінилось.\nОсь як виглядає мапа зараз:`, Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { disable_web_page_preview: true }));
+                yield telefram_service_1.default.sendMessage(chatId, `Вітаю, Ви підписались на оновленя мапи тривог України (https://alerts.in.ua/).\nЦей бот моніторить зміни на мапі кожні 30 секунд і надсилає її, якщо щось змінилось.\nКраще ввімкнути автовидалення повідомлень 1 раз на день, щоб вберегти пам'ять вашого девайсу.\n\nОсь як виглядає мапа зараз:`, Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { disable_web_page_preview: true }));
                 yield telefram_service_1.default.sendPhoto(chatId, fs_1.default.readFileSync("base.png"), {}, {
                     filename: "mapScreenshot",
                     contentType: "image/png",
@@ -129,13 +129,13 @@ class BotController {
                 let chat = yield mongo_service_1.default.getChat(chatId);
                 if (chat.subscribed === subscribe) {
                     return yield telefram_service_1.default.sendMessage(chatId, subscribe
-                        ? "🔔 Ви вже підписані на щоденні передбачення."
-                        : "🔕 Ви вже відписані від щоденних передбачень", this.setReplyKeyboard(chat));
+                        ? "🔔 Ви вже підписані на оновлення мапи."
+                        : "🔕 Ви вже відписані від оновлень", this.setReplyKeyboard(chat));
                 }
                 chat = yield mongo_service_1.default.chatSubscribe(chatId, subscribe);
                 yield telefram_service_1.default.sendMessage(chatId, subscribe
-                    ? "🔔 Ви підписалися на щоденні передбачення."
-                    : `🔕 Ви відписались від щоденних передбачень. Ви можете отримати передбачення в "Меню", але один раз на день.`, this.setReplyKeyboard(chat));
+                    ? "🔔 Ви підписалися на оновлення мапи."
+                    : `🔕 Ви відписались від оновлень.`, this.setReplyKeyboard(chat));
                 return;
             }
             catch (e) {
@@ -150,13 +150,13 @@ class BotController {
                 let chat = yield mongo_service_1.default.getChat(chatId);
                 if (chat.silent === mute) {
                     return yield telefram_service_1.default.sendMessage(chatId, mute
-                        ? "🔇 Ви вже отримуєте пердбачення без звуку"
-                        : "🔈 Ви вже отримуєте пердбачення зі звуком", this.setReplyKeyboard(chat));
+                        ? "🔇 Ви вже отримуєте оповіщення без звуку"
+                        : "🔈 Ви вже отримуєте оповіщення зі звуком", this.setReplyKeyboard(chat));
                 }
                 chat = yield mongo_service_1.default.chatSilent(chatId, mute);
                 yield telefram_service_1.default.sendMessage(chatId, mute
-                    ? "🔇 Ваші пердбачення будуть надходити без звуку."
-                    : "🔈 Ваші пердбачення будуть надходити зі звуком.", this.setReplyKeyboard(chat));
+                    ? "🔇 Оповіщення будуть надходити без звуку."
+                    : "🔈 Оповіщення будуть надходити зі звуком.", this.setReplyKeyboard(chat));
                 return;
             }
             catch (e) {

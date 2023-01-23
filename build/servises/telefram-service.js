@@ -9,5 +9,5 @@ const dotenv_1 = require("dotenv");
 // @ts-ignore
 process.env["NTBA_FIX_350"] = 1;
 const botOptions = { polling: true };
-const bot = new node_telegram_bot_api_1.default(process.env.BOT_TOKEN, process.env.NODE_ENV === "development" ? botOptions : undefined);
+const bot = new node_telegram_bot_api_1.default(process.env.BOT_TOKEN, botOptions);
 exports.default = bot;
