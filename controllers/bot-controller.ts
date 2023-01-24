@@ -33,13 +33,13 @@ class BotController {
 
 		keyboard.push([
 			{
-				text: "ℹ️\nЛегенда",
+				text: "ℹ️",
 			},
 			{
-				text: subscribed ? "🔕\nВідписатися" : "🔔\nПідписатися",
+				text: subscribed ? "🔕" : "🔔",
 			},
 			{
-				text: silent ? "🔈\nЗі звуком" : "🔇\nБез звуку",
+				text: silent ? "🔈" : "🔇",
 			},
 		]);
 
@@ -239,27 +239,27 @@ class BotController {
 					return;
 				//show legend
 				case "/legend":
-				case "ℹ️ Легенда":
+				case "ℹ️":
 					await this.onLegend(msg);
 					return;
 				//subscribe
 				case "/subscribe":
-				case "🔔 Підписатися":
+				case "🔔":
 					await this.onSubscribe(msg, true);
 					return;
 				//unsubscribe
 				case "/unsubscribe":
-				case "🔕 Відписатися":
+				case "🔕":
 					await this.onSubscribe(msg, false);
 					return;
 				//mute
 				case "/mute":
-				case "🔇 Без звуку":
+				case "🔇":
 					await this.onMute(msg, true);
 					return;
 				//unmute
 				case "/unmute":
-				case "🔈 Зі звуком":
+				case "🔈":
 					await this.onMute(msg, false);
 					return;
 				default:
