@@ -9,7 +9,14 @@ class PuppeteerService {
 		selector: string,
 		evaluate: () => void,
 	) {
-		const browser = await puppeteer.launch();
+		const browser = await puppeteer.launch({
+			args: ["--no-sandbox"],
+			...(process.env.NODE_ENV === "production"
+				? {
+						executablePath: "/usr/bin/chromium-browser",
+				  }
+				: {}),
+		});
 		try {
 			const page = await browser.newPage();
 			page.setViewport({

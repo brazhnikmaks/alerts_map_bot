@@ -18,7 +18,11 @@ const puppeteer_1 = __importDefault(require("puppeteer"));
 class PuppeteerService {
     getSelectorScreenshot(url, selector, evaluate) {
         return __awaiter(this, void 0, void 0, function* () {
-            const browser = yield puppeteer_1.default.launch();
+            const browser = yield puppeteer_1.default.launch(Object.assign({ args: ["--no-sandbox"] }, (process.env.NODE_ENV === "production"
+                ? {
+                    executablePath: "/usr/bin/chromium-browser",
+                }
+                : {})));
             try {
                 const page = yield browser.newPage();
                 page.setViewport({
