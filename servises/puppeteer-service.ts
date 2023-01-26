@@ -12,13 +12,13 @@ class PuppeteerService {
 		const browser = await puppeteer.launch({
 			args: ["--no-sandbox"],
 			defaultViewport: { width: 1920, height: 1080 },
-			executablePath: process.env.NODE_ENV === "production" ? "/usr/bin/chromium-browser" : process.env.CHROME_EXECUTABLE_PATH,
+			executablePath: process.env.CHROME_EXECUTABLE_PATH,
 			headless: true,
 			ignoreHTTPSErrors: true,
 		});
 		try {
 			const page = await browser.newPage();
-
+			await page.setCacheEnabled(false);
 			await page.goto(url);
 			await page.evaluate(evaluate);
 			await page.goto(url, { waitUntil: "networkidle0" });
