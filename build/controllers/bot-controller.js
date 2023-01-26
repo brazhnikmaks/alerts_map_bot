@@ -72,7 +72,7 @@ class BotController {
             const selector = ".alert-map.map-container.no-select>svg>g[fill='none']";
             return yield puppeteer_service_1.default.getSelectorScreenshot(url, selector, () => {
                 localStorage.setItem("darkMode", "true");
-                localStorage.setItem("showDurationGradient", "true");
+                localStorage.setItem("showDurationGradient", "false");
                 localStorage.setItem("showOblastLabels", "true");
             });
         });

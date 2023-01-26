@@ -71,7 +71,7 @@ class BotController {
 
 		return await PuppeteerService.getSelectorScreenshot(url, selector, () => {
 			localStorage.setItem("darkMode", "true");
-			localStorage.setItem("showDurationGradient", "true");
+			localStorage.setItem("showDurationGradient", "false");
 			localStorage.setItem("showOblastLabels", "true");
 		});
 	}
