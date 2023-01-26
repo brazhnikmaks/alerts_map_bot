@@ -13,22 +13,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = require("dotenv");
-const puppeteer_1 = __importDefault(require("puppeteer"));
+const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 (0, dotenv_1.config)();
 class PuppeteerService {
     getSelectorScreenshot(url, selector, evaluate) {
         return __awaiter(this, void 0, void 0, function* () {
-            const browser = yield puppeteer_1.default.launch(Object.assign({ args: ["--no-sandbox"] }, (process.env.NODE_ENV === "production"
-                ? {
-                    executablePath: "/usr/bin/chromium-browser",
-                }
-                : {})));
+            const browser = yield puppeteer_core_1.default.launch({
+                args: ["--no-sandbox"],
+                defaultViewport: { width: 1920, height: 1080 },
+                executablePath: process.env.NODE_ENV === "production" ? "/usr/bin/chromium-browser" : process.env.CHROME_EXECUTABLE_PATH,
+                headless: true,
+                ignoreHTTPSErrors: true,
+            });
             try {
                 const page = yield browser.newPage();
-                page.setViewport({
-                    width: 1920,
-                    height: 1080,
-                });
                 yield page.goto(url);
                 yield page.evaluate(evaluate);
                 yield page.goto(url, { waitUntil: "networkidle0" });
