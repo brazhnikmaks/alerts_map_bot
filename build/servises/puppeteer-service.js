@@ -21,12 +21,13 @@ class PuppeteerService {
             const browser = yield puppeteer_core_1.default.launch({
                 args: ["--no-sandbox"],
                 defaultViewport: { width: 1920, height: 1080 },
-                executablePath: process.env.NODE_ENV === "production" ? "/usr/bin/chromium-browser" : process.env.CHROME_EXECUTABLE_PATH,
+                executablePath: process.env.CHROME_EXECUTABLE_PATH,
                 headless: true,
                 ignoreHTTPSErrors: true,
             });
             try {
                 const page = yield browser.newPage();
+                yield page.setCacheEnabled(false);
                 yield page.goto(url);
                 yield page.evaluate(evaluate);
                 yield page.goto(url, { waitUntil: "networkidle0" });
