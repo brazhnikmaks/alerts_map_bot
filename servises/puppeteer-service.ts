@@ -11,6 +11,7 @@ class PuppeteerService {
 	) {
 		const browser = await puppeteer.launch({
 			args: ["--no-sandbox"],
+			userDataDir: "/dev/null",
 			defaultViewport: { width: 1920, height: 1080 },
 			executablePath: process.env.CHROME_EXECUTABLE_PATH,
 			headless: true,

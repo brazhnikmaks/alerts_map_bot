@@ -19,7 +19,8 @@ class PuppeteerService {
     getSelectorScreenshot(url, selector, evaluate) {
         return __awaiter(this, void 0, void 0, function* () {
             const browser = yield puppeteer_core_1.default.launch({
-                args: ["--no-sandbox"],
+                args: ["--no-sandbox", "--incognito"],
+                userDataDir: "/dev/null",
                 defaultViewport: { width: 1920, height: 1080 },
                 executablePath: process.env.CHROME_EXECUTABLE_PATH,
                 headless: true,
