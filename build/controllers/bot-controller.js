@@ -222,7 +222,7 @@ class BotController {
             const newScreenshot = (yield this.getAlertsScreenshot());
             if (newScreenshot) {
                 const diffPixels = yield pixelmatch_service_1.default.diffImages(fs_1.default.readFileSync("base.png"), newScreenshot);
-                // console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+                console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
                 if (diffPixels > 400) {
                     fs_1.default.writeFileSync("base.png", newScreenshot);
                     try {

@@ -297,7 +297,7 @@ class BotController {
 				newScreenshot,
 			);
 
-			// console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
 
 			if (diffPixels > 400) {
 				fs.writeFileSync("base.png", newScreenshot);
