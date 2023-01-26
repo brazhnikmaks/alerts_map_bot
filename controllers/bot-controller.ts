@@ -183,10 +183,23 @@ class BotController {
 			await bot.sendMessage(
 				chatId,
 				subscribe
-					? "🔔 Ви підписалися на оновлення мапи."
+					? "🔔 Ви підписалися на оновлення мапи.\nОсь вона зараз:"
 					: `🔕 Ви відписались від оновлень.`,
 				this.setReplyKeyboard(chat),
 			);
+
+			if (subscribe) {
+				await bot.sendPhoto(
+					chatId,
+					fs.readFileSync("base.png"),
+					{},
+					{
+						filename: "mapScreenshot",
+						contentType: "image/png",
+					},
+				);
+			}
+
 			return;
 		} catch (e) {
 			await this.sendError(chatId);

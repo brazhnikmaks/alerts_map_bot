@@ -135,8 +135,14 @@ class BotController {
                 }
                 chat = yield mongo_service_1.default.chatSubscribe(chatId, subscribe);
                 yield telefram_service_1.default.sendMessage(chatId, subscribe
-                    ? "🔔 Ви підписалися на оновлення мапи."
+                    ? "🔔 Ви підписалися на оновлення мапи.\nОсь вона зараз:"
                     : `🔕 Ви відписались від оновлень.`, this.setReplyKeyboard(chat));
+                if (subscribe) {
+                    yield telefram_service_1.default.sendPhoto(chatId, fs_1.default.readFileSync("base.png"), {}, {
+                        filename: "mapScreenshot",
+                        contentType: "image/png",
+                    });
+                }
                 return;
             }
             catch (e) {
