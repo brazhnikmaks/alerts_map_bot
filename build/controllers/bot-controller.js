@@ -216,7 +216,7 @@ class BotController {
             const newScreenshot = (yield this.getAlertsScreenshot());
             if (newScreenshot) {
                 const diffPixels = yield pixelmatch_service_1.default.diffImages(fs_1.default.readFileSync("base.png"), newScreenshot);
-                console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+                // console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
                 if (diffPixels > 400) {
                     fs_1.default.writeFileSync("base.png", newScreenshot);
                     try {
@@ -229,12 +229,22 @@ class BotController {
                                 return;
                             }
                             yield Promise.all(chats.map(({ id, silent }) => __awaiter(this, void 0, void 0, function* () {
-                                return yield telefram_service_1.default.sendPhoto(id, newScreenshot, {
-                                    disable_notification: silent,
-                                }, {
-                                    filename: "mapScreenshot",
-                                    contentType: "image/png",
-                                });
+                                try {
+                                    yield telefram_service_1.default.sendPhoto(id, newScreenshot, {
+                                        disable_notification: silent,
+                                    }, {
+                                        filename: "mapScreenshot",
+                                        contentType: "image/png",
+                                    });
+                                    return;
+                                }
+                                catch (e) {
+                                    // @ts-ignore
+                                    if (e.response.body.error_code === 403) {
+                                        yield mongo_service_1.default.chatSubscribe(id, false);
+                                    }
+                                    return;
+                                }
                             })));
                         }
                         catch (e) { }

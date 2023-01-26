@@ -284,7 +284,7 @@ class BotController {
 				newScreenshot,
 			);
 
-			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+			// console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
 
 			if (diffPixels > 400) {
 				fs.writeFileSync("base.png", newScreenshot);
@@ -302,17 +302,26 @@ class BotController {
 
 						await Promise.all(
 							chats.map(async ({ id, silent }) => {
-								return await bot.sendPhoto(
-									id,
-									newScreenshot,
-									{
-										disable_notification: silent,
-									},
-									{
-										filename: "mapScreenshot",
-										contentType: "image/png",
-									},
-								);
+								try {
+									await bot.sendPhoto(
+										id,
+										newScreenshot,
+										{
+											disable_notification: silent,
+										},
+										{
+											filename: "mapScreenshot",
+											contentType: "image/png",
+										},
+									);
+									return;
+								} catch (e) {
+									// @ts-ignore
+									if (e.response.body.error_code === 403) {
+										await db.chatSubscribe(id, false);
+									}
+									return;
+								}
 							}),
 						);
 					} catch (e) {}
