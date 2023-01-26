@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 config();
 
@@ -11,18 +11,14 @@ class PuppeteerService {
 	) {
 		const browser = await puppeteer.launch({
 			args: ["--no-sandbox"],
-			...(process.env.NODE_ENV === "production"
-				? {
-						executablePath: "/usr/bin/chromium-browser",
-				  }
-				: {}),
+			defaultViewport: { width: 1920, height: 1080 },
+			executablePath: process.env.NODE_ENV === "production" ? "/usr/bin/chromium-browser" : process.env.CHROME_EXECUTABLE_PATH,
+			headless: true,
+			ignoreHTTPSErrors: true,
 		});
 		try {
 			const page = await browser.newPage();
-			page.setViewport({
-				width: 1920,
-				height: 1080,
-			});
+
 			await page.goto(url);
 			await page.evaluate(evaluate);
 			await page.goto(url, { waitUntil: "networkidle0" });
