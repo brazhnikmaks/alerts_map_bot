@@ -116,10 +116,10 @@ class BotController {
     onLegend(msg) {
         return __awaiter(this, void 0, void 0, function* () {
             const { chat: { id: chatId }, } = msg;
-            const legend = fs_1.default.readFileSync("legend.png");
+            const legend = fs_1.default.readFileSync("legend.jpeg");
             return yield telefram_service_1.default.sendPhoto(chatId, legend, {}, {
                 filename: "mapLegend",
-                contentType: "image/png",
+                contentType: "image/jpeg",
             });
         });
     }

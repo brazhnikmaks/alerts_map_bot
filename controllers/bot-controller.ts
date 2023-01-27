@@ -147,7 +147,7 @@ class BotController {
 			chat: { id: chatId },
 		} = msg;
 
-		const legend = fs.readFileSync("legend.png");
+		const legend = fs.readFileSync("legend.jpeg");
 
 		return await bot.sendPhoto(
 			chatId,
@@ -155,7 +155,7 @@ class BotController {
 			{},
 			{
 				filename: "mapLegend",
-				contentType: "image/png",
+				contentType: "image/jpeg",
 			},
 		);
 	}
