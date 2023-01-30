@@ -1,8 +1,13 @@
 import { PNG } from "pngjs";
-import pixelmatch from "pixelmatch";
+// @ts-ignore
+import pixelmatch, { PixelmatchOptions } from "pixelmatch";
 
 class PixelmatchService {
-	async diffImages(img1Buffer: Buffer, img2Buffer: Buffer) {
+	async diffImages(
+		img1Buffer: Buffer,
+		img2Buffer: Buffer,
+		options: PixelmatchOptions,
+	) {
 		const img1 = PNG.sync.read(img1Buffer);
 		const img2 = PNG.sync.read(img2Buffer);
 		const { width, height } = img1;
@@ -14,9 +19,7 @@ class PixelmatchService {
 			diff.data,
 			width,
 			height,
-			{
-				threshold: 0.1,
-			},
+			options,
 		);
 
 		return diffPixels;

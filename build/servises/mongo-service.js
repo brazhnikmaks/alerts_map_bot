@@ -85,5 +85,18 @@ class MongoService {
             return new chat_dto_1.default(chat);
         });
     }
+    chatAlerts(chatId, alerts = "all") {
+        return __awaiter(this, void 0, void 0, function* () {
+            const chat = yield chat_model_1.default.findOneAndUpdate({ id: chatId }, {
+                alerts,
+            }, {
+                new: true,
+            });
+            if (!chat) {
+                throw new Error("No chat founded");
+            }
+            return new chat_dto_1.default(chat);
+        });
+    }
 }
 exports.default = new MongoService();

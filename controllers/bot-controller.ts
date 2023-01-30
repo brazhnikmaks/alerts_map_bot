@@ -8,6 +8,7 @@ import bot from "../servises/telefram-service";
 import db from "../servises/mongo-service";
 import PuppeteerService from "../servises/puppeteer-service";
 import PixelmatchService from "../servises/pixelmatch-service";
+import AlertsColorService from "../servises/alerts-color-service";
 import ChatDto from "../dtos/chat-dto";
 
 class BotController {
@@ -18,6 +19,8 @@ class BotController {
 	async setCommands() {
 		bot.setMyCommands([
 			{ command: "/legend", description: "ℹ️ Легенда" },
+			{ command: "/air", description: "✈ Тільки повітряні тривоги" },
+			{ command: "/all", description: "⚠️ Всі види тривог" },
 			{ command: "/subscribe", description: "🔔 Підписатися" },
 			{ command: "/unsubscribe", description: "🔕 Відписатися" },
 			{ command: "/mute", description: "🔇 Без звуку" },
@@ -27,7 +30,7 @@ class BotController {
 	}
 
 	setReplyKeyboard(chat: ChatDto): SendMessageOptions {
-		const { subscribed, silent } = chat;
+		const { subscribed, silent, alerts } = chat;
 
 		const keyboard: KeyboardButton[][] = [];
 
@@ -40,6 +43,9 @@ class BotController {
 			},
 			{
 				text: silent ? "🔈" : "🔇",
+			},
+			{
+				text: alerts === "air" ? "⚠️" : "✈",
 			},
 		]);
 
@@ -58,7 +64,7 @@ class BotController {
 	async onHelp(chatId: number) {
 		return await bot.sendMessage(
 			chatId,
-			`Ви отримаєте нову мапу, коли на ній будуть зміни.\n\nОсь, що Ви можете поки зробити:\n\n/legend - ℹ️ Подивитися легенду мапы.\n\n/unsubscribe - 🔕 *відписатися* від оновлень мапи.\n/subscribe - 🔔 *відновити* підписку.\n\n/mute - 🔇 налаштувати оповіщення *без звуку*.\n/unmute - 🔈 та *зі звуком*.`,
+			`Ви отримаєте нову мапу, коли на ній будуть зміни.\n\nОсь, що Ви можете поки зробити:\n\n/legend - ℹ️ Подивитися легенду мапы.\n\n/air - ✈ налаштувати оповіщення тільки *повітрянної тривоги*.\n/all - ⚠️ або налаштувати оповіщення будь-якої тривоги (повітряна, артилерія та інше).\n\n/unsubscribe - 🔕 *відписатися* від оновлень мапи.\n/subscribe - 🔔 *відновити* підписку.\n\n/mute - 🔇 налаштувати оповіщення *без звуку*.\n/unmute - 🔈 та *зі звуком*.`,
 			{
 				parse_mode: "Markdown",
 			},
@@ -73,6 +79,7 @@ class BotController {
 			localStorage.setItem("darkMode", "true");
 			localStorage.setItem("showDurationGradient", "false");
 			localStorage.setItem("showOblastLabels", "true");
+			localStorage.setItem("offlineWarning", "false");
 		});
 	}
 
@@ -240,6 +247,66 @@ class BotController {
 		}
 	}
 
+	async onAirAlert(msg: Message) {
+		const {
+			chat: { id: chatId },
+		} = msg;
+
+		try {
+			let chat = await db.getChat(chatId);
+
+			if (chat.alerts === "air") {
+				return await bot.sendMessage(
+					chatId,
+					"✈ Ви вже отримуєте оновлення мапи тільки при зміні повітряної тривоги (червоний колір).",
+					this.setReplyKeyboard(chat),
+				);
+			}
+
+			chat = await db.chatAlerts(chatId, "air");
+
+			await bot.sendMessage(
+				chatId,
+				"✈ Оновлення мапи будуть надходити тільки якщо зміниться повітряна тривога (червоний колір).",
+				this.setReplyKeyboard(chat),
+			);
+
+			return;
+		} catch (e) {
+			await this.sendError(chatId);
+		}
+	}
+
+	async onAllAlert(msg: Message) {
+		const {
+			chat: { id: chatId },
+		} = msg;
+
+		try {
+			let chat = await db.getChat(chatId);
+
+			if (chat.alerts === "all") {
+				return await bot.sendMessage(
+					chatId,
+					"⚠️ Ви вже отримуєте оновлення мапи на будь-яку зміну тривог.",
+					this.setReplyKeyboard(chat),
+				);
+			}
+
+			chat = await db.chatAlerts(chatId, "all");
+
+			await bot.sendMessage(
+				chatId,
+				"⚠️ Оновлення мапи будуть надходити при будь-якій зміні тривог.",
+				this.setReplyKeyboard(chat),
+			);
+
+			return;
+		} catch (e) {
+			await this.sendError(chatId);
+		}
+	}
+
 	async onAction(msg: Message) {
 		let {
 			text,
@@ -257,6 +324,16 @@ class BotController {
 				case "/legend":
 				case "ℹ️":
 					await this.onLegend(msg);
+					return;
+				//show all alerts
+				case "/all":
+				case "⚠️":
+					await this.onAllAlert(msg);
+					return;
+				//show only air alert
+				case "/air":
+				case "✈":
+					await this.onAirAlert(msg);
 					return;
 				//subscribe
 				case "/subscribe":
@@ -290,11 +367,21 @@ class BotController {
 
 	async monitor() {
 		const newScreenshot = (await this.getAlertsScreenshot()) as Buffer;
+		let airAlertMatch = false;
 
 		if (newScreenshot) {
 			const diffPixels = await PixelmatchService.diffImages(
 				fs.readFileSync("base.png"),
 				newScreenshot,
+				{
+					threshold: 0.1,
+					// @ts-ignore
+					onDiffPixel: (color1, color2) => {
+						if (!airAlertMatch) {
+							airAlertMatch = AlertsColorService.isAirAlert(color1, color2);
+						}
+					},
+				},
 			);
 
 			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
@@ -307,6 +394,7 @@ class BotController {
 					try {
 						const chats = await db.getChats({
 							subscribed: true,
+							...(airAlertMatch ? {} : { alerts: "all" }),
 						});
 
 						if (!chats.length) {
@@ -314,18 +402,26 @@ class BotController {
 						}
 
 						await Promise.all(
-							chats.map(async ({ id, silent }) => {
+							chats.map(async (chat) => {
+								const { id, silent } = chat;
 								try {
 									await bot.sendPhoto(
 										id,
 										newScreenshot,
 										{
+											...this.setReplyKeyboard(chat),
 											disable_notification: silent,
 										},
 										{
 											filename: "mapScreenshot",
 											contentType: "image/png",
 										},
+									);
+									await bot.sendMessage(
+										436262107,
+										airAlertMatch
+											? `змінилась тривога повітряна`
+											: `тільки артелерія`,
 									);
 									return;
 								} catch (e) {

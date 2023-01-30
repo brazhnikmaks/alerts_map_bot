@@ -3,7 +3,7 @@ import mongoose, { FilterQuery } from "mongoose";
 import { User } from "node-telegram-bot-api";
 import ChatModel from "../models/chat-model";
 import ChatDto from "../dtos/chat-dto";
-import { IChat } from "../types/chat";
+import { AlertsType, IChat } from "../types/chat";
 
 config();
 mongoose.set("strictQuery", false);
@@ -67,6 +67,22 @@ class MongoService {
 			{ id: chatId },
 			{
 				subscribed,
+			},
+			{
+				new: true,
+			},
+		);
+		if (!chat) {
+			throw new Error("No chat founded");
+		}
+		return new ChatDto(chat);
+	}
+
+	async chatAlerts(chatId: number, alerts: AlertsType = "all") {
+		const chat = await ChatModel.findOneAndUpdate(
+			{ id: chatId },
+			{
+				alerts,
 			},
 			{
 				new: true,

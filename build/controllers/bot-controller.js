@@ -17,6 +17,7 @@ const telefram_service_1 = __importDefault(require("../servises/telefram-service
 const mongo_service_1 = __importDefault(require("../servises/mongo-service"));
 const puppeteer_service_1 = __importDefault(require("../servises/puppeteer-service"));
 const pixelmatch_service_1 = __importDefault(require("../servises/pixelmatch-service"));
+const alerts_color_service_1 = __importDefault(require("../servises/alerts-color-service"));
 class BotController {
     constructor() {
         this.setCommands();
@@ -25,6 +26,8 @@ class BotController {
         return __awaiter(this, void 0, void 0, function* () {
             telefram_service_1.default.setMyCommands([
                 { command: "/legend", description: "ℹ️ Легенда" },
+                { command: "/air", description: "✈ Тільки повітряні тривоги" },
+                { command: "/all", description: "⚠️ Всі види тривог" },
                 { command: "/subscribe", description: "🔔 Підписатися" },
                 { command: "/unsubscribe", description: "🔕 Відписатися" },
                 { command: "/mute", description: "🔇 Без звуку" },
@@ -34,7 +37,7 @@ class BotController {
         });
     }
     setReplyKeyboard(chat) {
-        const { subscribed, silent } = chat;
+        const { subscribed, silent, alerts } = chat;
         const keyboard = [];
         keyboard.push([
             {
@@ -45,6 +48,9 @@ class BotController {
             },
             {
                 text: silent ? "🔈" : "🔇",
+            },
+            {
+                text: alerts === "air" ? "⚠️" : "✈",
             },
         ]);
         return {
@@ -61,7 +67,7 @@ class BotController {
     }
     onHelp(chatId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield telefram_service_1.default.sendMessage(chatId, `Ви отримаєте нову мапу, коли на ній будуть зміни.\n\nОсь, що Ви можете поки зробити:\n\n/legend - ℹ️ Подивитися легенду мапы.\n\n/unsubscribe - 🔕 *відписатися* від оновлень мапи.\n/subscribe - 🔔 *відновити* підписку.\n\n/mute - 🔇 налаштувати оповіщення *без звуку*.\n/unmute - 🔈 та *зі звуком*.`, {
+            return yield telefram_service_1.default.sendMessage(chatId, `Ви отримаєте нову мапу, коли на ній будуть зміни.\n\nОсь, що Ви можете поки зробити:\n\n/legend - ℹ️ Подивитися легенду мапы.\n\n/air - ✈ налаштувати оповіщення тільки *повітрянної тривоги*.\n/all - ⚠️ або налаштувати оповіщення будь-якої тривоги (повітряна, артилерія та інше).\n\n/unsubscribe - 🔕 *відписатися* від оновлень мапи.\n/subscribe - 🔔 *відновити* підписку.\n\n/mute - 🔇 налаштувати оповіщення *без звуку*.\n/unmute - 🔈 та *зі звуком*.`, {
                 parse_mode: "Markdown",
             });
         });
@@ -74,6 +80,7 @@ class BotController {
                 localStorage.setItem("darkMode", "true");
                 localStorage.setItem("showDurationGradient", "false");
                 localStorage.setItem("showOblastLabels", "true");
+                localStorage.setItem("offlineWarning", "false");
             });
         });
     }
@@ -171,6 +178,40 @@ class BotController {
             }
         });
     }
+    onAirAlert(msg) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { chat: { id: chatId }, } = msg;
+            try {
+                let chat = yield mongo_service_1.default.getChat(chatId);
+                if (chat.alerts === "air") {
+                    return yield telefram_service_1.default.sendMessage(chatId, "✈ Ви вже отримуєте оновлення мапи тільки при зміні повітряної тривоги (червоний колір).", this.setReplyKeyboard(chat));
+                }
+                chat = yield mongo_service_1.default.chatAlerts(chatId, "air");
+                yield telefram_service_1.default.sendMessage(chatId, "✈ Оновлення мапи будуть надходити тільки якщо зміниться повітряна тривога (червоний колір).", this.setReplyKeyboard(chat));
+                return;
+            }
+            catch (e) {
+                yield this.sendError(chatId);
+            }
+        });
+    }
+    onAllAlert(msg) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { chat: { id: chatId }, } = msg;
+            try {
+                let chat = yield mongo_service_1.default.getChat(chatId);
+                if (chat.alerts === "all") {
+                    return yield telefram_service_1.default.sendMessage(chatId, "⚠️ Ви вже отримуєте оновлення мапи на будь-яку зміну тривог.", this.setReplyKeyboard(chat));
+                }
+                chat = yield mongo_service_1.default.chatAlerts(chatId, "all");
+                yield telefram_service_1.default.sendMessage(chatId, "⚠️ Оновлення мапи будуть надходити при будь-якій зміні тривог.", this.setReplyKeyboard(chat));
+                return;
+            }
+            catch (e) {
+                yield this.sendError(chatId);
+            }
+        });
+    }
     onAction(msg) {
         return __awaiter(this, void 0, void 0, function* () {
             let { text, chat: { id: chatId }, } = msg;
@@ -185,6 +226,16 @@ class BotController {
                     case "/legend":
                     case "ℹ️":
                         yield this.onLegend(msg);
+                        return;
+                    //show all alerts
+                    case "/all":
+                    case "⚠️":
+                        yield this.onAllAlert(msg);
+                        return;
+                    //show only air alert
+                    case "/air":
+                    case "✈":
+                        yield this.onAirAlert(msg);
                         return;
                     //subscribe
                     case "/subscribe":
@@ -220,28 +271,37 @@ class BotController {
     monitor() {
         return __awaiter(this, void 0, void 0, function* () {
             const newScreenshot = (yield this.getAlertsScreenshot());
+            let airAlertMatch = false;
             if (newScreenshot) {
-                const diffPixels = yield pixelmatch_service_1.default.diffImages(fs_1.default.readFileSync("base.png"), newScreenshot);
+                const diffPixels = yield pixelmatch_service_1.default.diffImages(fs_1.default.readFileSync("base.png"), newScreenshot, {
+                    threshold: 0.1,
+                    // @ts-ignore
+                    onDiffPixel: (color1, color2) => {
+                        if (!airAlertMatch) {
+                            airAlertMatch = alerts_color_service_1.default.isAirAlert(color1, color2);
+                        }
+                    },
+                });
                 console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
                 if (diffPixels > 400) {
                     fs_1.default.writeFileSync("base.png", newScreenshot);
                     try {
                         yield mongo_service_1.default.connect();
                         try {
-                            const chats = yield mongo_service_1.default.getChats({
-                                subscribed: true,
-                            });
+                            const chats = yield mongo_service_1.default.getChats(Object.assign({ subscribed: true }, (airAlertMatch ? {} : { alerts: "all" })));
                             if (!chats.length) {
                                 return;
                             }
-                            yield Promise.all(chats.map(({ id, silent }) => __awaiter(this, void 0, void 0, function* () {
+                            yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
+                                const { id, silent } = chat;
                                 try {
-                                    yield telefram_service_1.default.sendPhoto(id, newScreenshot, {
-                                        disable_notification: silent,
-                                    }, {
+                                    yield telefram_service_1.default.sendPhoto(id, newScreenshot, Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { disable_notification: silent }), {
                                         filename: "mapScreenshot",
                                         contentType: "image/png",
                                     });
+                                    yield telefram_service_1.default.sendMessage(436262107, airAlertMatch
+                                        ? `змінилась тривога повітряна`
+                                        : `тільки артелерія`);
                                     return;
                                 }
                                 catch (e) {

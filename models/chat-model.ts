@@ -6,6 +6,7 @@ const ChatSchema = new Schema<IChat>({
 	createdAt: { type: Date, default: Date.now },
 	subscribed: { type: Boolean, default: true },
 	silent: { type: Boolean, default: false },
+	alerts: { type: String, default: "all" },
 	firstName: { type: String },
 	lastName: { type: String },
 	username: { type: String },
