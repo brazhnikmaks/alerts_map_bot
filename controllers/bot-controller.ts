@@ -417,12 +417,6 @@ class BotController {
 											contentType: "image/png",
 										},
 									);
-									await bot.sendMessage(
-										436262107,
-										airAlertMatch
-											? `змінилась тривога повітряна`
-											: `тільки артелерія`,
-									);
 									return;
 								} catch (e) {
 									// @ts-ignore
@@ -432,6 +426,12 @@ class BotController {
 									return;
 								}
 							}),
+						);
+						await bot.sendMessage(
+							436262107,
+							airAlertMatch
+								? `змінилась тривога повітряна`
+								: `тільки артелерія`,
 						);
 					} catch (e) {}
 				} catch (e) {}

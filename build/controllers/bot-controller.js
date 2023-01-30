@@ -299,9 +299,6 @@ class BotController {
                                         filename: "mapScreenshot",
                                         contentType: "image/png",
                                     });
-                                    yield telefram_service_1.default.sendMessage(436262107, airAlertMatch
-                                        ? `змінилась тривога повітряна`
-                                        : `тільки артелерія`);
                                     return;
                                 }
                                 catch (e) {
@@ -312,6 +309,9 @@ class BotController {
                                     return;
                                 }
                             })));
+                            yield telefram_service_1.default.sendMessage(436262107, airAlertMatch
+                                ? `змінилась тривога повітряна`
+                                : `тільки артелерія`);
                         }
                         catch (e) { }
                     }
