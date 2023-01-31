@@ -1,58 +1,44 @@
 export type AlertColorType = [number, number, number, number];
+export type AlertMultiColorType = [number[], number[], number[], number[]];
 
 class AlertsColorService {
-	noAlert: AlertColorType;
-	airAlert: AlertColorType;
-	artilleryAlert: AlertColorType;
-	communityAlert: AlertColorType;
-	artilleryAirAlert: AlertColorType;
+	noAlert: AlertMultiColorType;
+	airAlert: AlertMultiColorType;
+	artilleryAlert: AlertMultiColorType;
+	communityAlert: AlertMultiColorType;
+	artilleryAirAlert: AlertMultiColorType;
 
 	constructor() {
-		this.noAlert = [24, 35, 50, 255];
-		this.airAlert = [104, 24, 27, 255];
-		this.communityAlert = [106, 31, 40, 255];
-		this.artilleryAlert = [116, 70, 30, 255];
-		this.artilleryAirAlert = [164, 64, 16, 255];
+		this.noAlert = [[24, 23], [34, 35], [50, 49, 51], [255]];
+		this.airAlert = [[104, 94, 93], [24, 23, 22], [27, 26], [255]];
+		this.communityAlert = [[106], [31], [40], [255]];
+		this.artilleryAlert = [[116], [70], [30], [255]];
+		this.artilleryAirAlert = [[164], [64], [16], [255]];
+	}
+
+	hasColor(multiColor: AlertMultiColorType, color: AlertColorType): boolean {
+		return (
+			multiColor[0].some((c) => c === color[0]) &&
+			multiColor[1].some((c) => c === color[1]) &&
+			multiColor[2].some((c) => c === color[2]) &&
+			multiColor[3].some((c) => c === color[3])
+		);
 	}
 
 	isAirAlert(color1: AlertColorType, color2: AlertColorType): boolean {
+		const color1IsNoAlert = this.hasColor(this.noAlert, color1);
+		const color2IsNoAlert = this.hasColor(this.noAlert, color2);
+
+		const color1IsAirAlert = this.hasColor(this.airAlert, color1);
+		const color2IsAirAlert = this.hasColor(this.airAlert, color2);
+
+		const color1IsCommunityAlert = this.hasColor(this.communityAlert, color1);
+		const color2IsCommunityAlert = this.hasColor(this.communityAlert, color2);
+
 		return (
-			(color1[0] === this.noAlert[0] &&
-				color1[1] === this.noAlert[1] &&
-				color1[2] === this.noAlert[2] &&
-				color1[3] === this.noAlert[3] &&
-				((color2[0] === this.airAlert[0] &&
-					color2[1] === this.airAlert[1] &&
-					color2[2] === this.airAlert[2] &&
-					color2[3] === this.airAlert[3]) ||
-					(color2[0] === this.communityAlert[0] &&
-						color2[1] === this.communityAlert[1] &&
-						color2[2] === this.communityAlert[2] &&
-						color2[3] === this.communityAlert[3]))) ||
-			(color1[0] === this.airAlert[0] &&
-				color1[1] === this.airAlert[1] &&
-				color1[2] === this.airAlert[2] &&
-				color1[3] === this.airAlert[3] &&
-				((color2[0] === this.noAlert[0] &&
-					color2[1] === this.noAlert[1] &&
-					color2[2] === this.noAlert[2] &&
-					color2[3] === this.noAlert[3]) ||
-					(color2[0] === this.communityAlert[0] &&
-						color2[1] === this.communityAlert[1] &&
-						color2[2] === this.communityAlert[2] &&
-						color2[3] === this.communityAlert[3]))) ||
-			(color1[0] === this.communityAlert[0] &&
-				color1[1] === this.communityAlert[1] &&
-				color1[2] === this.communityAlert[2] &&
-				color1[3] === this.communityAlert[3] &&
-				((color2[0] === this.noAlert[0] &&
-					color2[1] === this.noAlert[1] &&
-					color2[2] === this.noAlert[2] &&
-					color2[3] === this.noAlert[3]) ||
-					(color2[0] === this.airAlert[0] &&
-						color2[1] === this.airAlert[1] &&
-						color2[2] === this.airAlert[2] &&
-						color2[3] === this.airAlert[3])))
+			(color1IsNoAlert && (color2IsAirAlert || color2IsCommunityAlert)) ||
+			(color1IsAirAlert && (color2IsNoAlert || color2IsCommunityAlert)) ||
+			(color1IsCommunityAlert && (color2IsNoAlert || color2IsAirAlert))
 		);
 	}
 }

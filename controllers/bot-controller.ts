@@ -80,6 +80,7 @@ class BotController {
 			localStorage.setItem("showDurationGradient", "false");
 			localStorage.setItem("showOblastLabels", "true");
 			localStorage.setItem("offlineWarning", "false");
+			localStorage.setItem("showRaion", "null");
 		});
 	}
 
@@ -384,8 +385,6 @@ class BotController {
 				},
 			);
 
-			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
-
 			if (diffPixels > 400) {
 				fs.writeFileSync("base.png", newScreenshot);
 
@@ -427,11 +426,12 @@ class BotController {
 								}
 							}),
 						);
-						await bot.sendMessage(
-							436262107,
-							airAlertMatch
-								? `змінилась тривога повітряна`
-								: `тільки артелерія`,
+						console.log(
+							(airAlertMatch
+								? "зміна повітряної тривоги"
+								: "зміна інших тривог") +
+								" " +
+								new Date(Date.now() + 120 * 60 * 1000).toLocaleString(),
 						);
 					} catch (e) {}
 				} catch (e) {}
