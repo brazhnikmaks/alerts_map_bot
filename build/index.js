@@ -9,3 +9,4 @@ telefram_service_1.default.on("message", bot_controller_1.default.onAction.bind(
 setInterval(() => {
     bot_controller_1.default.monitor.bind(bot_controller_1.default)();
 }, 30 * 1000);
+bot_controller_1.default.updateMessage.bind(bot_controller_1.default)();

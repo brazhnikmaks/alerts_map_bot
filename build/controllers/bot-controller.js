@@ -329,5 +329,30 @@ class BotController {
             }
         });
     }
+    updateMessage() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield mongo_service_1.default.connect();
+                try {
+                    const chats = yield mongo_service_1.default.getChats({
+                        subscribed: true,
+                    });
+                    if (!chats.length) {
+                        return;
+                    }
+                    yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
+                        const { id, silent } = chat;
+                        try {
+                            yield telefram_service_1.default.sendMessage(id, "Оновлення:\n\nБот навчився відрізняти повітряну тривогу (червоного кольору) від інших.\n\nТепер додатково Ви можете:\n\n/air - ✈ налаштувати оповіщення тільки *повітрянної тривоги*.\n/all - ⚠️ або налаштувати оповіщення будь-якої тривоги (повітряна, артилерія та інше). - за замовчуванням\n\nНаприклад, якщо Ви налаштували оповіщення тільки повітряної тривоги, бот нічого не відправить, якщо зміниться загроза артобстрілу.", Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { parse_mode: "Markdown" }));
+                            return;
+                        }
+                        catch (e) { }
+                    })));
+                }
+                catch (e) { }
+            }
+            catch (e) { }
+        });
+    }
 }
 exports.default = new BotController();
