@@ -371,8 +371,9 @@ class BotController {
 		let airAlertMatch = false;
 
 		if (newScreenshot) {
+			const base = fs.readFileSync("base.png");
 			const diffPixels = await PixelmatchService.diffImages(
-				fs.readFileSync("base.png"),
+				base,
 				newScreenshot,
 				{
 					threshold: 0.1,
@@ -386,6 +387,12 @@ class BotController {
 			);
 
 			if (diffPixels > 400) {
+				// catch not alert screenshots
+				if (!airAlertMatch) {
+					const dateNow = Date.now();
+					fs.writeFileSync(`base-before-${dateNow}.png`, base);
+					fs.writeFileSync(`base-after-${dateNow}.png`, newScreenshot);
+				}
 				fs.writeFileSync("base.png", newScreenshot);
 
 				try {

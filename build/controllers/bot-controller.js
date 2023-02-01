@@ -274,7 +274,8 @@ class BotController {
             const newScreenshot = (yield this.getAlertsScreenshot());
             let airAlertMatch = false;
             if (newScreenshot) {
-                const diffPixels = yield pixelmatch_service_1.default.diffImages(fs_1.default.readFileSync("base.png"), newScreenshot, {
+                const base = fs_1.default.readFileSync("base.png");
+                const diffPixels = yield pixelmatch_service_1.default.diffImages(base, newScreenshot, {
                     threshold: 0.1,
                     // @ts-ignore
                     onDiffPixel: (color1, color2) => {
@@ -284,6 +285,12 @@ class BotController {
                     },
                 });
                 if (diffPixels > 400) {
+                    // catch not alert screenshots
+                    if (!airAlertMatch) {
+                        const dateNow = Date.now();
+                        fs_1.default.writeFileSync(`base-before-${dateNow}.png`, base);
+                        fs_1.default.writeFileSync(`base-after-${dateNow}.png`, newScreenshot);
+                    }
                     fs_1.default.writeFileSync("base.png", newScreenshot);
                     try {
                         yield mongo_service_1.default.connect();
