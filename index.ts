@@ -7,4 +7,4 @@ setInterval(() => {
 	BotController.monitor.bind(BotController)();
 }, 30 * 1000);
 
-BotController.updateMessage.bind(BotController)();
+// BotController.updateMessage.bind(BotController)();

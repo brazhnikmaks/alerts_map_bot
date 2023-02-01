@@ -446,34 +446,34 @@ class BotController {
 		}
 	}
 
-	async updateMessage() {
-		try {
-			await db.connect();
-			try {
-				const chats = await db.getChats({
-					subscribed: true,
-				});
+	// async updateMessage() {
+	// 	try {
+	// 		await db.connect();
+	// 		try {
+	// 			const chats = await db.getChats({
+	// 				subscribed: true,
+	// 			});
 
-				if (!chats.length) {
-					return;
-				}
+	// 			if (!chats.length) {
+	// 				return;
+	// 			}
 
-				await Promise.all(
-					chats.map(async (chat) => {
-						const { id, silent } = chat;
-						try {
-							await bot.sendMessage(
-								id,
-								"Оновлення:\n\nБот навчився відрізняти повітряну тривогу (червоного кольору) від інших.\n\nТепер додатково Ви можете:\n\n/air - ✈ налаштувати оповіщення тільки *повітрянної тривоги*.\n/all - ⚠️ або налаштувати оповіщення будь-якої тривоги (повітряна, артилерія та інше). - за замовчуванням\n\nНаприклад, якщо Ви налаштували оповіщення тільки повітряної тривоги, бот нічого не відправить, якщо зміниться загроза артобстрілу.",
-								{ ...this.setReplyKeyboard(chat), parse_mode: "Markdown" },
-							);
-							return;
-						} catch (e) {}
-					}),
-				);
-			} catch (e) {}
-		} catch (e) {}
-	}
+	// 			await Promise.all(
+	// 				chats.map(async (chat) => {
+	// 					const { id, silent } = chat;
+	// 					try {
+	// 						await bot.sendMessage(
+	// 							id,
+	// 							"Оновлення:\n\nБот навчився відрізняти повітряну тривогу (червоного кольору) від інших.\n\nТепер додатково Ви можете:\n\n/air - ✈ налаштувати оповіщення тільки *повітрянної тривоги*.\n/all - ⚠️ або налаштувати оповіщення будь-якої тривоги (повітряна, артилерія та інше). - за замовчуванням\n\nНаприклад, якщо Ви налаштували оповіщення тільки повітряної тривоги, бот нічого не відправить, якщо зміниться загроза артобстрілу.",
+	// 							{ ...this.setReplyKeyboard(chat), parse_mode: "Markdown" },
+	// 						);
+	// 						return;
+	// 					} catch (e) {}
+	// 				}),
+	// 			);
+	// 		} catch (e) {}
+	// 	} catch (e) {}
+	// }
 }
 
 export default new BotController();
