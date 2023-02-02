@@ -386,6 +386,8 @@ class BotController {
 				},
 			);
 
+			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+
 			if (diffPixels > 400) {
 				// catch not alert screenshots
 				if (!airAlertMatch) {
