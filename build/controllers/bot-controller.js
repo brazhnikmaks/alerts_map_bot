@@ -286,12 +286,6 @@ class BotController {
                 });
                 console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
                 if (diffPixels > 400) {
-                    // catch not alert screenshots
-                    if (!airAlertMatch) {
-                        const dateNow = Date.now();
-                        fs_1.default.writeFileSync(`base-before-${dateNow}.png`, base);
-                        fs_1.default.writeFileSync(`base-after-${dateNow}.png`, newScreenshot);
-                    }
                     fs_1.default.writeFileSync("base.png", newScreenshot);
                     try {
                         yield mongo_service_1.default.connect();

@@ -389,12 +389,6 @@ class BotController {
 			console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
 
 			if (diffPixels > 400) {
-				// catch not alert screenshots
-				if (!airAlertMatch) {
-					const dateNow = Date.now();
-					fs.writeFileSync(`base-before-${dateNow}.png`, base);
-					fs.writeFileSync(`base-after-${dateNow}.png`, newScreenshot);
-				}
 				fs.writeFileSync("base.png", newScreenshot);
 
 				try {
