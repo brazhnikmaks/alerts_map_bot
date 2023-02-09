@@ -10,8 +10,8 @@ class AlertsColorService {
 
 	constructor() {
 		this.noAlert = [[24, 23], [34, 35], [50, 49, 51], [255]];
-		this.airAlert = [[104, 94, 93, 95], [24, 23, 22], [27, 26, 28], [255]];
-		this.communityAlert = [[106], [31], [40], [255]];
+		this.airAlert = [[104, 94, 93, 95, 96], [24, 23, 22], [27, 26, 28], [255]];
+		this.communityAlert = [[106, 98], [31], [40, 41], [255]];
 		this.artilleryAlert = [[116], [70], [30], [255]];
 		this.artilleryAirAlert = [[164], [64], [16], [255]];
 	}
