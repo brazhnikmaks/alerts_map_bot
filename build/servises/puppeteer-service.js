@@ -32,6 +32,8 @@ class PuppeteerService {
                 yield page.goto(url);
                 yield page.evaluate(evaluate);
                 yield page.goto(url, { waitUntil: "networkidle0" });
+                //sleep
+                yield new Promise((r) => setTimeout(r, 2000));
                 yield page.waitForSelector(selector);
                 const element = yield page.$(selector);
                 if (element) {

@@ -23,8 +23,9 @@ class PuppeteerService {
 			await page.goto(url);
 			await page.evaluate(evaluate);
 			await page.goto(url, { waitUntil: "networkidle0" });
+			//sleep
+			await new Promise((r) => setTimeout(r, 2000));
 			await page.waitForSelector(selector);
-
 			const element = await page.$(selector);
 
 			if (element) {
