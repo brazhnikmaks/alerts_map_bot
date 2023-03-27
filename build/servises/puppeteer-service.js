@@ -41,7 +41,7 @@ class PuppeteerService {
                 }
             }
             catch (e) {
-                console.log(e);
+                return null;
             }
             finally {
                 yield browser.close();

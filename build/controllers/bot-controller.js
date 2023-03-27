@@ -269,57 +269,65 @@ class BotController {
             }
         });
     }
+    sendMap(map, isAir) {
+        return __awaiter(this, void 0, void 0, function* () {
+            fs_1.default.writeFileSync("base.png", map);
+            try {
+                yield mongo_service_1.default.connect();
+                try {
+                    const chats = yield mongo_service_1.default.getChats(Object.assign({ subscribed: true }, (isAir ? {} : { alerts: "all" })));
+                    if (!chats.length) {
+                        return;
+                    }
+                    yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
+                        const { id, silent } = chat;
+                        try {
+                            yield telefram_service_1.default.sendPhoto(id, map, Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { disable_notification: silent }), {
+                                filename: "mapScreenshot",
+                                contentType: "image/png",
+                            });
+                            return;
+                        }
+                        catch (e) {
+                            // @ts-ignore
+                            if (e.response.body.error_code === 403) {
+                                yield mongo_service_1.default.chatSubscribe(id, false);
+                            }
+                            return;
+                        }
+                    })));
+                    console.log((isAir ? "зміна повітряної тривоги" : "зміна інших тривог") +
+                        " " +
+                        new Date(Date.now() + 120 * 60 * 1000).toLocaleString());
+                }
+                catch (e) { }
+            }
+            catch (e) { }
+        });
+    }
     monitor() {
         return __awaiter(this, void 0, void 0, function* () {
             const newScreenshot = (yield this.getAlertsScreenshot());
             let airAlertMatch = false;
             if (newScreenshot) {
-                const base = fs_1.default.readFileSync("base.png");
-                const diffPixels = yield pixelmatch_service_1.default.diffImages(base, newScreenshot, {
-                    threshold: 0.1,
-                    // @ts-ignore
-                    onDiffPixel: (color1, color2) => {
-                        if (!airAlertMatch) {
-                            airAlertMatch = alerts_color_service_1.default.isAirAlert(color1, color2);
-                        }
-                    },
-                });
-                console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
-                if (diffPixels > 400) {
-                    fs_1.default.writeFileSync("base.png", newScreenshot);
-                    try {
-                        yield mongo_service_1.default.connect();
-                        try {
-                            const chats = yield mongo_service_1.default.getChats(Object.assign({ subscribed: true }, (airAlertMatch ? {} : { alerts: "all" })));
-                            if (!chats.length) {
-                                return;
+                try {
+                    const base = fs_1.default.readFileSync("base.png");
+                    const diffPixels = yield pixelmatch_service_1.default.diffImages(base, newScreenshot, {
+                        threshold: 0.1,
+                        // @ts-ignore
+                        onDiffPixel: (color1, color2) => {
+                            if (!airAlertMatch) {
+                                airAlertMatch = alerts_color_service_1.default.isAirAlert(color1, color2);
                             }
-                            yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
-                                const { id, silent } = chat;
-                                try {
-                                    yield telefram_service_1.default.sendPhoto(id, newScreenshot, Object.assign(Object.assign({}, this.setReplyKeyboard(chat)), { disable_notification: silent }), {
-                                        filename: "mapScreenshot",
-                                        contentType: "image/png",
-                                    });
-                                    return;
-                                }
-                                catch (e) {
-                                    // @ts-ignore
-                                    if (e.response.body.error_code === 403) {
-                                        yield mongo_service_1.default.chatSubscribe(id, false);
-                                    }
-                                    return;
-                                }
-                            })));
-                            console.log((airAlertMatch
-                                ? "зміна повітряної тривоги"
-                                : "зміна інших тривог") +
-                                " " +
-                                new Date(Date.now() + 120 * 60 * 1000).toLocaleString());
-                        }
-                        catch (e) { }
+                        },
+                    });
+                    console.log(`${diffPixels} pixels; ${new Date().toLocaleString()}`);
+                    if (diffPixels > 400) {
+                        this.sendMap(newScreenshot, airAlertMatch);
                     }
-                    catch (e) { }
+                }
+                catch (e) {
+                    this.sendMap(newScreenshot, airAlertMatch);
                 }
             }
         });
