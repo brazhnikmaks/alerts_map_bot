@@ -30,12 +30,12 @@ class PuppeteerService {
                 const page = yield browser.newPage();
                 yield page.setCacheEnabled(false);
                 page.setDefaultNavigationTimeout(0);
-                yield page.goto(url);
+                yield page.goto(url, { timeout: 0 });
                 yield page.evaluate(evaluate);
-                yield page.goto(url, { waitUntil: "networkidle0" });
+                yield page.goto(url, { waitUntil: "networkidle0", timeout: 0 });
                 //sleep
                 yield new Promise((r) => setTimeout(r, 2000));
-                yield page.waitForSelector(selector);
+                yield page.waitForSelector(selector, { timeout: 0 });
                 const element = yield page.$(selector);
                 if (element) {
                     return yield element.screenshot();

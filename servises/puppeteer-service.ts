@@ -21,12 +21,12 @@ class PuppeteerService {
       const page = await browser.newPage();
       await page.setCacheEnabled(false);
       page.setDefaultNavigationTimeout(0);
-      await page.goto(url);
+      await page.goto(url, { timeout: 0 });
       await page.evaluate(evaluate);
-      await page.goto(url, { waitUntil: "networkidle0" });
+      await page.goto(url, { waitUntil: "networkidle0", timeout: 0 });
       //sleep
       await new Promise((r) => setTimeout(r, 2000));
-      await page.waitForSelector(selector);
+      await page.waitForSelector(selector, { timeout: 0 });
       const element = await page.$(selector);
 
       if (element) {
