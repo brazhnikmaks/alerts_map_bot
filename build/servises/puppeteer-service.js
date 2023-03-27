@@ -29,6 +29,7 @@ class PuppeteerService {
             try {
                 const page = yield browser.newPage();
                 yield page.setCacheEnabled(false);
+                page.setDefaultNavigationTimeout(0);
                 yield page.goto(url);
                 yield page.evaluate(evaluate);
                 yield page.goto(url, { waitUntil: "networkidle0" });

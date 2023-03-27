@@ -20,6 +20,7 @@ class PuppeteerService {
     try {
       const page = await browser.newPage();
       await page.setCacheEnabled(false);
+      page.setDefaultNavigationTimeout(0);
       await page.goto(url);
       await page.evaluate(evaluate);
       await page.goto(url, { waitUntil: "networkidle0" });
