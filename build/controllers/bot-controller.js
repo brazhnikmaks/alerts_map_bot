@@ -75,7 +75,7 @@ class BotController {
     getAlertsScreenshot() {
         return __awaiter(this, void 0, void 0, function* () {
             const url = "https://alerts.in.ua/";
-            const selector = ".alert-map.map-container.no-select>svg>g[fill='none']";
+            const selector = ".alert-map.map-container.no-select>svg>g.oblasts";
             return yield puppeteer_service_1.default.getSelectorScreenshot(url, selector, () => {
                 localStorage.setItem("darkMode", "true");
                 localStorage.setItem("showDurationGradient", "false");

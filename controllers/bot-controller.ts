@@ -73,7 +73,7 @@ class BotController {
 
   async getAlertsScreenshot() {
     const url = "https://alerts.in.ua/";
-    const selector = ".alert-map.map-container.no-select>svg>g[fill='none']";
+    const selector = ".alert-map.map-container.no-select>svg>g.oblasts";
 
     return await PuppeteerService.getSelectorScreenshot(url, selector, () => {
       localStorage.setItem("darkMode", "true");
